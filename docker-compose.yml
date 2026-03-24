@@ -1,23 +1,32 @@
 services:
+  hermes-terminal-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.terminal-dev
+    container_name: hermes-terminal-dev
+    restart: unless-stopped
+    command: ["sleep", "infinity"]
+
   hermes:
     build:
       context: .
       dockerfile: Dockerfile.hermes
-    image: hermes-agent:latest
     container_name: hermes-dev-swarm
     stdin_open: true
     tty: true
     restart: unless-stopped
     volumes:
       - hermes_data:/root/.hermes
-      - /var/run/docker.sock:/var/run/docker.sock   # rw required to spawn sandbox containers
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=UTC
       # - OPENROUTER_API_KEY=sk-or-...
       # - ANTHROPIC_API_KEY=...
     ports:
       - "8080:8080"
-    entrypoint: ["tail", "-f", "/dev/null"]   # Override entrypoint to keep container alive for interactive use
+    depends_on:
+      - hermes-terminal-dev
+    entrypoint: ["tail", "-f", "/dev/null"]
 
 volumes:
   hermes_data:
