@@ -1,0 +1,22 @@
+FROM nikolaik/python-nodejs:python3.11-nodejs22
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl git ripgrep ffmpeg \
+    php php-cli php-curl php-mbstring php-xml php-zip unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/local/bin --filename=composer
+
+# Angular CLI
+RUN npm install -g @angular/cli
+
+# Rust — install and set PATH via ENV so it persists across all RUN layers and at runtime
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Verify all tools are reachable
+RUN ng version && php --version && composer --version && rustc --version && cargo --version
+
+WORKDIR /workspace
