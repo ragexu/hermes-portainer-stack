@@ -1,0 +1,21 @@
+FROM nikolaik/python-nodejs:python3.11-nodejs22
+
+RUN apt-get update && apt-get install -y git curl && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    apt-get clean
+
+ENV PATH="/root/.local/bin:${PATH}"   # Make uv available after install
+
+WORKDIR /app
+RUN git clone https://github.com/nousresearch/hermes-agent.git . && \
+    git checkout main && \
+    git submodule update --init --recursive && \
+    uv venv venv --python 3.11 && \        # Base image already has 3.11, no need to re-install
+    . venv/bin/activate && \
+    uv pip install -e ".[all]" && \
+    npm install
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
