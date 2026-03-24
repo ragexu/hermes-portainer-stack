@@ -4,13 +4,14 @@ RUN apt-get update && apt-get install -y git curl && \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     apt-get clean
 
-ENV PATH="/root/.local/bin:${PATH}"   # Make uv available after install
+# Set uv PATH on its own line — no inline comments on ENV
+ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
 RUN git clone https://github.com/nousresearch/hermes-agent.git . && \
     git checkout main && \
     git submodule update --init --recursive && \
-    uv venv venv --python 3.11 && \        # Base image already has 3.11, no need to re-install
+    uv venv venv --python 3.11 && \
     . venv/bin/activate && \
     uv pip install -e ".[all]" && \
     npm install
