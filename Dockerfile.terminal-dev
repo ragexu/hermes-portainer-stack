@@ -12,11 +12,13 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Angular CLI
 RUN npm install -g @angular/cli
 
-# Rust — install and set PATH via ENV so it persists across all RUN layers and at runtime
+# Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+
+# Set Rust PATH on its own line — no inline comments on ENV
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Verify all tools are reachable
+# Verify all tools
 RUN ng version && php --version && composer --version && rustc --version && cargo --version
 
 WORKDIR /workspace
