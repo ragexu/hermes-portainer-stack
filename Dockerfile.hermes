@@ -7,7 +7,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV PATH="/root/.local/bin:${PATH}"
 
+WORKDIR /appFROM nikolaik/python-nodejs:python3.11-nodejs22
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl ca-certificates build-essential pkg-config \
+    && curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/root/.local/bin:${PATH}"
+
 WORKDIR /app
+
+RUN git clone https://github.com/nousresearch/hermes-agent.git .
+RUN git checkout main
+RUN git submodule update --init --recursive
+RUN python -m venv venv
+RUN . venv/bin/activate && uv pip install -e .
+RUN npm install
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 RUN git clone https://github.com/nousresearch/hermes-agent.git .
 RUN git checkout main
