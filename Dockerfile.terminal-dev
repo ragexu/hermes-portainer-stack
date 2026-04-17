@@ -3,7 +3,25 @@ FROM nikolaik/python-nodejs:python3.11-nodejs22
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential curl git ripgrep ffmpeg \
     php php-cli php-curl php-mbstring php-xml php-zip unzip ca-certificates \
+    && rm -rf /var/lib/apt/lists/*FROM nikolaik/python-nodejs:python3.11-nodejs22
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl git ripgrep ffmpeg \
+    php php-cli php-curl php-mbstring php-xml php-zip unzip ca-certificates \
+    rustc cargo \
     && rm -rf /var/lib/apt/lists/*
+
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/local/bin --filename=composer
+
+# Angular CLI
+RUN npm install -g @angular/cli
+
+# Verify all tools
+RUN ng version && php --version && composer --version && rustc --version && cargo --version
+
+WORKDIR /workspace
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
