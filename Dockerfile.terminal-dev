@@ -3,11 +3,6 @@ FROM nikolaik/python-nodejs:python3.11-nodejs22
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential curl git ripgrep ffmpeg \
     php php-cli php-curl php-mbstring php-xml php-zip unzip ca-certificates \
-    && rm -rf /var/lib/apt/lists/*FROM nikolaik/python-nodejs:python3.11-nodejs22
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl git ripgrep ffmpeg \
-    php php-cli php-curl php-mbstring php-xml php-zip unzip ca-certificates \
     rustc cargo \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,29 +13,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Angular CLI
 RUN npm install -g @angular/cli
 
-# Verify all tools
-RUN ng version && php --version && composer --version && rustc --version && cargo --version
-
-WORKDIR /workspace
-
-# Composer
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --install-dir=/usr/local/bin --filename=composer
-
-# Angular CLI
-RUN npm install -g @angular/cli
-
-# Rust
-ENV RUSTUP_HOME=/root/.rustup \
-    CARGO_HOME=/root/.cargo
-RUN curl -fsSL https://sh.rustup.rs -o /tmp/rustup-init.sh \
-    && sh /tmp/rustup-init.sh -y --profile minimal --default-toolchain stable \
-    && rm -f /tmp/rustup-init.sh
-
-# Set Rust PATH on its own line
 ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Verify all tools
-RUN ng version && php --version && composer --version && rustc --version && cargo --version
 
 WORKDIR /workspace
