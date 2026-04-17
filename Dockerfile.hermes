@@ -1,22 +1,39 @@
-FROM nikolaik/python-nodejs:python3.11-nodejs22
+# Dockerfile for hermes-agent
 
-RUN apt-get update && apt-get install -y git curl && \
-    curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    apt-get clean
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
 
-# Set uv PATH on its own line — no inline comments on ENV
-ENV PATH="/root/.local/bin:${PATH}"
-
+# Set the working directory
 WORKDIR /app
-RUN git clone https://github.com/nousresearch/hermes-agent.git . && \
+
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone the hermes-agent repository
+RUN git clone https://github.com/ragexu/hermes-agent.git /app/hermes-agent
+
+# Checkout the main branch and update submodules
+RUN cd /app/hermes-agent && \
     git checkout main && \
-    git submodule update --init --recursive && \
-    uv venv venv --python 3.11 && \
-    . venv/bin/activate && \
-    uv pip install -e ".[all]" && \
+    git submodule update --init --recursive
+
+# Create a virtual environment
+RUN python -m venv venv
+
+# Install Python dependencies
+RUN . venv/bin/activate && \
+    pip install --no-cache-dir -r /app/hermes-agent/requirements.txt
+
+# Install npm dependencies
+RUN cd /app/hermes-agent && \
     npm install
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Preserve PATH for local binaries
+ENV PATH="/root/.local/bin:$PATH"
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Set the entrypoint
+ENTRYPOINT ["python", "venv/bin/your_script.py"]
