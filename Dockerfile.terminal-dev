@@ -13,7 +13,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 RUN npm install -g @angular/cli
 
 # Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup-init.sh \
+    && chmod +x /tmp/rustup-init.sh \
+    && /tmp/rustup-init.sh -y --no-modify-path \
+    && rm -f /tmp/rustup-init.sh
 
 # Set Rust PATH on its own line — no inline comments on ENV
 ENV PATH="/root/.cargo/bin:${PATH}"
